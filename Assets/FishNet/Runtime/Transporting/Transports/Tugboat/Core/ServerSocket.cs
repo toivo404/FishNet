@@ -385,6 +385,7 @@ namespace FishNet.Transporting.Tugboat.Server
             if (reader.AvailableBytes > _mtu)
             {
                 _remoteConnectionEvents.Enqueue(new(false, fromPeer.Id));
+				base.Transport.NetworkManager.LogError($"[Tugboat.MTU] Server received an oversized packet from clientId={fromPeer.Id} endpoint={fromPeer}. bytes={reader.AvailableBytes} mtu={_mtu} channel={channel} delivery={deliveryMethod}. This matches Tugboat's existing disconnect path; the peer will be disconnected. Shrink or split this payload.");
                 fromPeer.Disconnect();
             }
             else
