@@ -28,6 +28,10 @@ namespace FishNet.Broadcast.Helping
             //Update channel to reliable if needed.
             networkManager.TransportManager.CheckSetReliableChannel(writer.Length, ref channel);
 
+            networkManager.Log(
+                $"[FishNet.BroadcastTrace.send] type={typeof(T).FullName} " +
+                $"key={typeof(T).FullName.GetStableHashU16()} serializedBytes={writer.Length} channel={channel}");
+
             dataWriter.Store();
 
             return writer;
@@ -53,6 +57,9 @@ namespace FishNet.Broadcast.Helping
     /// </summary>
     public abstract class BroadcastHandlerBase
     {
+        /// <summary>Concrete broadcast type handled by this registration.</summary>
+        public abstract string BroadcastTypeName { get; }
+
         /// <summary>
         /// Current index when iterating invokes.
         /// This value will be -1 when not iterating.
@@ -71,6 +78,9 @@ namespace FishNet.Broadcast.Helping
     /// </summary>
     internal class ClientBroadcastHandler<T> : BroadcastHandlerBase
     {
+        /// <summary>Concrete broadcast type handled by this registration.</summary>
+        public override string BroadcastTypeName => typeof(T).FullName;
+
         /// <summary>
         /// Action handlers for the broadcast.
         /// </summary>
@@ -153,6 +163,9 @@ namespace FishNet.Broadcast.Helping
     /// </summary>
     internal class ServerBroadcastHandler<T> : BroadcastHandlerBase
     {
+        /// <summary>Concrete broadcast type handled by this registration.</summary>
+        public override string BroadcastTypeName => typeof(T).FullName;
+
         /// <summary>
         /// Action handlers for the broadcast.
         /// Even though List lookups are slower this allows easy adding and removing of entries during iteration.

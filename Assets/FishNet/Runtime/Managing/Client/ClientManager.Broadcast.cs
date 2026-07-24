@@ -68,9 +68,19 @@ namespace FishNet.Managing.Client
             int dataLength = Packets.GetPacketLength((ushort)PacketId.Broadcast, reader, channel);
             // try to invoke the handler for that message
             if (_broadcastHandlers.TryGetValueIL2CPP(key, out BroadcastHandlerBase bhs))
+            {
+                NetworkManager.Log(
+                    $"[FishNet.BroadcastTrace.recv] side=client type={bhs.BroadcastTypeName} " +
+                    $"key={key} payloadBytes={dataLength} channel={channel}");
                 bhs.InvokeHandlers(reader, channel);
+            }
             else
+            {
+                NetworkManager.LogWarning(
+                    $"[FishNet.BroadcastTrace.recv] side=client type=<unregistered> " +
+                    $"key={key} payloadBytes={dataLength} channel={channel}");
                 reader.Skip(dataLength);
+            }
         }
 
 

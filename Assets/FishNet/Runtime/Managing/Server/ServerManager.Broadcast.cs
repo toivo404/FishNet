@@ -79,6 +79,9 @@ namespace FishNet.Managing.Server
             // try to invoke the handler for that message
             if (_broadcastHandlers.TryGetValueIL2CPP(key, out BroadcastHandlerBase bhs))
             {
+                NetworkManager.Log(
+                    $"[FishNet.BroadcastTrace.recv] side=server clientId={conn.ClientId} " +
+                    $"type={bhs.BroadcastTypeName} key={key} payloadBytes={dataLength} channel={channel}");
                 if (bhs.RequireAuthentication && !conn.IsAuthenticated)
                     conn.Kick(KickReason.ExploitAttempt, LoggingType.Common, $"ConnectionId {conn.ClientId} sent a broadcast which requires authentication, but client was not authenticated. Client has been disconnected.");
                 else
@@ -86,6 +89,9 @@ namespace FishNet.Managing.Server
             }
             else
             {
+                NetworkManager.LogWarning(
+                    $"[FishNet.BroadcastTrace.recv] side=server clientId={conn.ClientId} " +
+                    $"type=<unregistered> key={key} payloadBytes={dataLength} channel={channel}");
                 reader.Skip(dataLength);
             }
         }

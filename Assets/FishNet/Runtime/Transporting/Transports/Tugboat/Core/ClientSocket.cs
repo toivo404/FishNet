@@ -211,6 +211,10 @@ namespace FishNet.Transporting.Tugboat.Client
         /// </summary>
         private void Listener_NetworkReceiveEvent(NetPeer fromPeer, NetPacketReader reader, byte channel, DeliveryMethod deliveryMethod)
         {
+            base.Transport.NetworkManager.Log(
+                $"[Tugboat.PacketTrace.recv] side=client endpoint={fromPeer} " +
+                $"payloadType=FishNetPacketBundle bytes={reader.AvailableBytes} mtu={_mtu} " +
+                $"channel={channel} delivery={deliveryMethod}");
             base.Listener_NetworkReceiveEvent(_incoming, fromPeer, reader, deliveryMethod, _mtu);
         }
 
@@ -247,6 +251,10 @@ namespace FishNet.Transporting.Tugboat.Client
                         dm = DeliveryMethod.ReliableOrdered;
                     }
 
+                    base.Transport.NetworkManager.Log(
+                        $"[Tugboat.PacketTrace.send] side=client endpoint={peer} " +
+                        $"payloadType=FishNetPacketBundle bytes={segment.Count} mtu={_mtu} " +
+                        $"channel={outgoing.Channel} delivery={dm} oversized={segment.Count > _mtu}");
                     peer.Send(segment.Array, segment.Offset, segment.Count, dm);
 
                     outgoing.Dispose();

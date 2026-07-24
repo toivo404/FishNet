@@ -381,6 +381,11 @@ namespace FishNet.Transporting.Tugboat.Server
         
         private void Listener_NetworkReceiveEvent(NetPeer fromPeer, NetPacketReader reader, byte channel, DeliveryMethod deliveryMethod)
         {
+            base.Transport.NetworkManager.Log(
+                $"[Tugboat.PacketTrace.recv] side=server clientId={fromPeer.Id} endpoint={fromPeer} " +
+                $"payloadType=FishNetPacketBundle bytes={reader.AvailableBytes} mtu={_mtu} " +
+                $"channel={channel} delivery={deliveryMethod} oversized={reader.AvailableBytes > _mtu}");
+
             //If over the MTU.
             if (reader.AvailableBytes > _mtu)
             {
@@ -446,6 +451,10 @@ namespace FishNet.Transporting.Tugboat.Server
                     //Send to all clients.
                     if (connectionId == NetworkConnection.UNSET_CLIENTID_VALUE)
                     {
+                        base.Transport.NetworkManager.Log(
+                            $"[Tugboat.PacketTrace.send] side=server target=all " +
+                            $"payloadType=FishNetPacketBundle bytes={segment.Count} mtu={_mtu} " +
+                            $"channel={outgoing.Channel} delivery={dm} oversized={segment.Count > _mtu}");
                         base.NetManager.SendToAll(segment.Array, segment.Offset, segment.Count, dm);
                     }
                     //Send to one client.
@@ -454,7 +463,13 @@ namespace FishNet.Transporting.Tugboat.Server
                         NetPeer peer = GetNetPeer(connectionId, true);
                         //If peer is found.
                         if (peer != null)
+                        {
+                            base.Transport.NetworkManager.Log(
+                                $"[Tugboat.PacketTrace.send] side=server targetClientId={connectionId} endpoint={peer} " +
+                                $"payloadType=FishNetPacketBundle bytes={segment.Count} mtu={_mtu} " +
+                                $"channel={outgoing.Channel} delivery={dm} oversized={segment.Count > _mtu}");
                             peer.Send(segment.Array, segment.Offset, segment.Count, dm);
+                        }
                     }
 
                     outgoing.Dispose();
